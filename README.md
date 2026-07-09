@@ -42,7 +42,9 @@ A simple Book Management microservice built with Java Spring Boot and PostgreSQL
 
 ## Entity-Relationship (ER) Diagram
 
-The ER diagram for the `Book` entity is intentionally omitted for this task scope. The `Book` entity maps to the `books` table with the following columns: `id` (PK, auto-generated), `title` (String, not null), `author` (String, not null), `isbn` (String, not null, unique), and `published_date` (Date).
+![ER Diagram](docs/er-diagram.png)
+
+The `Book` entity maps to the `books` table with the following columns: `id` (PK, auto-generated), `title` (String, not null), `author` (String, not null), `isbn` (String, not null, unique), and `published_date` (Date).
 
 ## API Documentation (Swagger UI)
 
