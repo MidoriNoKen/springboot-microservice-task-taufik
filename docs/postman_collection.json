@@ -1,0 +1,369 @@
+{
+  "info": {
+    "name": "Book Management API",
+    "description": "Collection for testing the Book Management Microservice CRUD endpoints. Uses environment variables for portability. Includes pre-request scripts for dynamic values and test scripts for response validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create a new book",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = Date.now();",
+              "pm.variables.set(\"isbn\", `978-${Math.floor(Math.random() * 1000000000000)}`);",
+              "pm.variables.set(\"timestamp\", timestamp);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Response has id field\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"id\");",
+              "    pm.expect(jsonData.id).to.be.a(\"number\");",
+              "});",
+              "",
+              "pm.test(\"Response has title field\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"title\");",
+              "});",
+              "",
+              "pm.test(\"Response has author field\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"author\");",
+              "});",
+              "",
+              "pm.test(\"Response has isbn field\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"isbn\");",
+              "});",
+              "",
+              "pm.test(\"Response has publishedDate field\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"publishedDate\");",
+              "});",
+              "",
+              "pm.test(\"Save book_id for subsequent requests\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.environment.set(\"book_id\", jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"The Pragmatic Programmer\",\n  \"author\": \"Andrew Hunt & David Thomas\",\n  \"isbn\": \"{{isbn}}\",\n  \"publishedDate\": \"1999-10-30\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/books",
+          "host": ["{{base_url}}"],
+          "path": ["api", "books"]
+        }
+      }
+    },
+    {
+      "name": "Get all books",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response is an array\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "});",
+              "",
+              "pm.test(\"Response contains books with required fields\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    if (jsonData.length > 0) {",
+              "        jsonData.forEach(function(book) {",
+              "            pm.expect(book).to.have.property(\"id\");",
+              "            pm.expect(book).to.have.property(\"title\");",
+              "            pm.expect(book).to.have.property(\"author\");",
+              "            pm.expect(book).to.have.property(\"isbn\");",
+              "            pm.expect(book).to.have.property(\"publishedDate\");",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/books",
+          "host": ["{{base_url}}"],
+          "path": ["api", "books"]
+        }
+      }
+    },
+    {
+      "name": "Get a book by ID",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if (!pm.environment.get(\"book_id\")) {",
+              "    console.log(\"Warning: No book_id found in environment. Run 'Create a new book' first.\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has correct book ID\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get(\"book_id\")));",
+              "});",
+              "",
+              "pm.test(\"Response has all required fields\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"title\");",
+              "    pm.expect(jsonData).to.have.property(\"author\");",
+              "    pm.expect(jsonData).to.have.property(\"isbn\");",
+              "    pm.expect(jsonData).to.have.property(\"publishedDate\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/books/{{book_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "books", "{{book_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Full update a book (PUT)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if (!pm.environment.get(\"book_id\")) {",
+              "    console.log(\"Warning: No book_id found in environment. Run 'Create a new book' first.\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Updated book has new title\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.title).to.eql(\"Clean Code: A Handbook of Agile Software Craftsmanship\");",
+              "});",
+              "",
+              "pm.test(\"Response has all required fields\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"id\");",
+              "    pm.expect(jsonData).to.have.property(\"title\");",
+              "    pm.expect(jsonData).to.have.property(\"author\");",
+              "    pm.expect(jsonData).to.have.property(\"isbn\");",
+              "    pm.expect(jsonData).to.have.property(\"publishedDate\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Clean Code: A Handbook of Agile Software Craftsmanship\",\n  \"author\": \"Robert C. Martin\",\n  \"isbn\": \"978-0-13-235088-4\",\n  \"publishedDate\": \"2008-08-01\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/books/{{book_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "books", "{{book_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Partial update a book (PATCH)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if (!pm.environment.get(\"book_id\")) {",
+              "    console.log(\"Warning: No book_id found in environment. Run 'Create a new book' first.\");",
+              "}",
+              "pm.variables.set(\"timestamp\", new Date().toISOString().split(\"T\")[0]);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Only title was updated\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.title).to.eql(\"Updated Title via PATCH\");",
+              "});",
+              "",
+              "pm.test(\"Response has all required fields\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"id\");",
+              "    pm.expect(jsonData).to.have.property(\"author\");",
+              "    pm.expect(jsonData).to.have.property(\"isbn\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated Title via PATCH\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/books/{{book_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "books", "{{book_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete a book",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "if (!pm.environment.get(\"book_id\")) {",
+              "    console.log(\"Warning: No book_id found in environment. Run 'Create a new book' first.\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 204 No Content\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/books/{{book_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "books", "{{book_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Get book by ID - Not Found (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Response has error message\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"message\");",
+              "});",
+              "",
+              "pm.test(\"Response has status field\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"status\");",
+              "    pm.expect(jsonData.status).to.eql(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/books/99999",
+          "host": ["{{base_url}}"],
+          "path": ["api", "books", "99999"]
+        }
+      }
+    }
+  ]
+}
