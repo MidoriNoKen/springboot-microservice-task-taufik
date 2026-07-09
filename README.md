@@ -52,6 +52,14 @@ Once the application is running, access the auto-generated API documentation at:
 
 - **Swagger UI:** `http://localhost:8080/swagger-ui.html`
 - **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
+- **OpenAPI YAML:** `http://localhost:8080/v3/api-docs.yaml`
+
+The Swagger UI includes:
+
+- Operation summaries and detailed descriptions for all 6 endpoints
+- Request/response schemas with examples
+- Documented HTTP status codes (200, 201, 204, 400, 404)
+- Try-it-out support for interactive testing
 
 ## How to Run the Project
 
@@ -68,7 +76,7 @@ This approach will automatically build the Spring Boot application and spin up t
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/springboot-microservice-task-taufik.git
+   git clone https://github.com/MidoriNoKen/springboot-microservice-task-taufik.git
    cd springboot-microservice-task-taufik
    ```
 
@@ -83,11 +91,34 @@ This approach will automatically build the Spring Boot application and spin up t
 
 ### Environment Variables
 
-If you wish to run the app locally without Docker, configure the following environment variables or update the `src/main/resources/application.yml` file:
+This project uses `.env` files for configuration management. A `.env.example` file is provided as a template.
 
-- `SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/bookdb`
-- `SPRING_DATASOURCE_USERNAME=postgres`
-- `SPRING_DATASOURCE_PASSWORD=postgres`
+#### Using .env file (Recommended)
+
+1. Copy `.env.example` to `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Modify the values in `.env` according to your environment (especially passwords and ports).
+
+3. The `.env` file is automatically loaded by Docker Compose and can be used for local development.
+
+#### Environment Variables Reference
+
+| Variable                     | Description                | Default Value                      |
+| :--------------------------- | :------------------------- | :--------------------------------- |
+| `POSTGRES_DB`                | PostgreSQL database name   | `bookdb`                           |
+| `POSTGRES_USER`              | PostgreSQL username        | `bookuser`                         |
+| `POSTGRES_PASSWORD`          | PostgreSQL password        | `bookpass`                         |
+| `POSTGRES_PORT`              | PostgreSQL port            | `5432`                             |
+| `SPRING_DATASOURCE_URL`      | Spring datasource JDBC URL | `jdbc:postgresql://db:5432/bookdb` |
+| `SPRING_DATASOURCE_USERNAME` | Spring datasource username | `bookuser`                         |
+| `SPRING_DATASOURCE_PASSWORD` | Spring datasource password | `bookpass`                         |
+| `SERVER_PORT`                | Spring Boot server port    | `8080`                             |
+
+**Note:** The `.env` file is included in `.gitignore` and should never be committed to version control for security reasons.
 
 ## API Testing & Postman Collection
 
